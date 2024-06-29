@@ -4,10 +4,6 @@ use actix_web::{
     HttpServer,
     middleware::Logger
 };
-
-use tiberius::{Client, Config, Query, AuthMethod};
-use tokio::net::TcpStream;
-use tokio_util::compat::TokioAsyncWriteCompatExt;
 use dotenv::dotenv;
 
 #[actix_web::main]
