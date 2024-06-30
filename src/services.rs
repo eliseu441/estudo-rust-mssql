@@ -3,6 +3,7 @@ use tiberius::ColumnData;
 use tiberius::{Client, Config, AuthMethod};
 use tokio::net::TcpStream;
 use tokio_util::compat::TokioAsyncWriteCompatExt;
+use serde_json::json;
 use actix_web::{
     web::{
         scope,
@@ -10,6 +11,7 @@ use actix_web::{
     },
     get,
     Responder,
+    HttpResponse,
 };
 
 
@@ -62,12 +64,13 @@ pub async fn connection()-> anyhow::Result<Vec<String>> {
             };
             rowtext.push(output);
         }
-         data = format!("{}\n", rowtext.join(","));
+         data = format!("{}", rowtext.join(","));
          reponse.push(data.clone());
     }
     println!("{:?}", reponse);
 
     Ok(reponse)
+
 }
 
 
@@ -75,9 +78,21 @@ pub async fn connection()-> anyhow::Result<Vec<String>> {
 #[get("/getStock")]
 async fn get_stock() -> impl Responder {
 
-    let query = connection().await;
+    match  connection().await{
+        Ok(reponse) => {
+           return HttpResponse::Ok().json(reponse);
+        }
+        Err(error) => {
+
+            return HttpResponse::InternalServerError().json(
+                json!({
+                    "status": "error",
+                    "message": format!("{:?}", error)
+                })
+            )
+        }
+    };
    // println!("{:?}", query);
-    format!("{:?}", query)
 }
 
 
